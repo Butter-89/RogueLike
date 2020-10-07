@@ -68,6 +68,9 @@ public class DungeonGenerator : MonoBehaviour
         Vector2Int roomPos = Vector2Int.zero;
         foreach (char ch in i_room.roomStr)
         {
+            if (ch == '\r')
+                continue;
+
             if (ch == '\n')
             {
                 roomPos.x = 0;
@@ -291,7 +294,7 @@ public class DungeonGenerator : MonoBehaviour
                 gRoom = GenerateConnectableRoom(door.direction, ref i_index, i_room);
 
                 AlignRoomToDoor(door, gRoom);
-                if (!IsOverlapped(gRoom)) //
+                if (!IsOverlapped(gRoom)) // !IsOverlapped(gRoom)
                 {
                     SpawnRoom(gRoom);
                     ConnectDoors(door, gRoom);
@@ -323,6 +326,13 @@ public class DungeonGenerator : MonoBehaviour
             //if(!board.floorTiles.Contains(tilePos_w))
             board.floorTiles.Add(tilePos_w);
         }
+    }
+
+    private bool AreRoomsOverlapped(Room i_room1, Room i_room2)
+    {
+
+
+        return false;
     }
 
     private bool IsOverlapped(Room i_room)  // detect if the room is overlapped w/ any other
