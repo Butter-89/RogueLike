@@ -37,7 +37,7 @@ public class DungeonGenerator : MonoBehaviour
         int roomIndex = 0;
         string roomStr = roomAsset[roomIndex].text;
         Room startRoom = CreateRoomFromString(roomStr, Vector2Int.zero);
-
+        SpawnRoom(startRoom);
         RegisterTiles(startRoom);
 
         // Initialize the random values
@@ -57,8 +57,8 @@ public class DungeonGenerator : MonoBehaviour
         room.roomStr = i_roomStr;
         room.originBoardPosition = i_roomPosition;
         board.rooms.Add(room);
-        //StoreRoomLayout(room);
-        SpawnRoom(room);
+        StoreRoomLayout(room);
+        //SpawnRoom(room);
 
         return room;
     }
@@ -75,20 +75,20 @@ public class DungeonGenerator : MonoBehaviour
                 continue;
             }
 
-            
-            Tile tile = new Tile();
+            TempTileData tile = new TempTileData();
             tile.tileType = ch;
             tile.room = i_room;
             tile.roomPosition = roomPos;
-            i_room.tiles.Add(tile);
+            i_room.TempTileDatas.Add(tile);
 
             if (ch == 'N' || ch == 'S' || ch == 'W' || ch == 'E')
             {
-                Door door = new Door();
-                door.room = i_room;
-                door.tile = tile;
+                TempDoorData door = new TempDoorData();
+                //door.room = i_room;
+                //door.tile = tile;
                 door.direction = ch;
-                i_room.doors.Add(door);
+                door.roomPostion = roomPos;
+                i_room.TempDoorDatas.Add(door);
             }
 
             roomPos.x++;
@@ -97,8 +97,8 @@ public class DungeonGenerator : MonoBehaviour
 
     private void SpawnRoom(Room i_room)
     {
-        i_room.tiles.Clear();
-        i_room.doors.Clear();
+        //i_room.tiles.Clear();
+        //i_room.doors.Clear();
         Vector2Int roomPos = Vector2Int.zero;
         foreach (char ch in i_room.roomStr)
         {
@@ -128,26 +128,6 @@ public class DungeonGenerator : MonoBehaviour
         return rotation;
     }
 
-    private Tile SpawnTile(Room i_room, Tile i_tile)
-    {
-        TileData tileData = tileDatas.Find(td => td.TileType == i_tile.tileType);
-        if (tileData.Prefab == null)
-            return null;
-
-        Tile tile = Instantiate(tileData.Prefab, i_room.transform);
-        tile.transform.localPosition = new Vector3(i_tile.roomPosition.x, 0, i_tile.roomPosition.y);
-        float yRotation = GetTileRotation(i_tile.tileType);
-        tile.transform.rotation = Quaternion.Euler(0, yRotation, 0);
-
-        tile.tileType = i_tile.tileType;
-        tile.room = i_room;
-        tile.roomPosition = i_tile.roomPosition;
-
-        
-
-        return tile;
-    }
-
     private Tile SpawnTile(char i_tileType, Room i_room, Vector2Int i_roomPosition)
     {
         TileData tileData = tileDatas.Find(td => td.TileType == i_tileType);
@@ -155,7 +135,7 @@ public class DungeonGenerator : MonoBehaviour
             return null;
 
         Tile tile = Instantiate(tileData.Prefab, i_room.transform);
-        tile.transform.localPosition = new Vector3(i_roomPosition.x, 0, i_roomPosition.y);
+        tile.transform.localPosition = new Vector3(i_roomPosition.x, 0, i_roomPosition.y);  // due to the right-hand coordinate system, need to swap x and z
         float yRotation = GetTileRotation(i_tileType);
         tile.transform.rotation = Quaternion.Euler(0, yRotation, 0);
 
@@ -225,7 +205,7 @@ public class DungeonGenerator : MonoBehaviour
         bool found = false;
         char targetDir = GetTargetDoorDir(i_doorDir);
 
-        foreach(Door door in i_gRoom.doors)
+        foreach(TempDoorData door in i_gRoom.TempDoorDatas)
         {
             if(door.direction == targetDir)
             {
@@ -238,34 +218,36 @@ public class DungeonGenerator : MonoBehaviour
         return found;
     }
 
+    // Simulate if the generated room data can be aligned
     private void AlignRoomToDoor(Door i_door, Room i_gRoom)
     {
         char targetDoorDir = GetTargetDoorDir(i_door.direction);   // the corresponding door for gRoom
-        Door gDoorAligned = i_gRoom.FindDoorWithDir(targetDoorDir);
+        TempDoorData gDoorAligned = i_gRoom.FindTempDoorWithDir(targetDoorDir);
 
         if (gDoorAligned == null)
             throw new System.InvalidOperationException($"Corresponding door of generated room {i_gRoom.transform.name} not found");
 
-        Vector2Int gDoorPos = gDoorAligned.tile.roomPosition;
+        Vector2Int gDoorPos = gDoorAligned.roomPostion;
         Vector2Int doorPos = i_door.tile.roomPosition;
         Vector2Int offset = doorPos - gDoorPos;
 
-        switch(targetDoorDir)
+        switch(i_door.direction)
         {
             case 'N':
-                offset.y++;
-                break;
-            case 'S':
                 offset.y--;
                 break;
+            case 'S':
+                offset.y++;
+                break;
             case 'W':
-                offset.x++;
+                offset.x--;
                 break;
             case 'E':
-                offset.x--;
+                offset.x++;
                 break;
         }
 
+        //offset *= new Vector2Int(1, -1);
         i_gRoom.originBoardPosition += offset;
 
         i_gRoom.transform.localPosition 
@@ -273,31 +255,59 @@ public class DungeonGenerator : MonoBehaviour
                           0,
                           i_gRoom.originBoardPosition.y);
 
+        
+    }
+
+    private void ConnectDoors(Door i_door, Room i_gRoom)
+    {
+        char targetDoorDir = GetTargetDoorDir(i_door.direction);   // the corresponding door for gRoom
+        Door gDoorAligned = i_gRoom.FindDoorWithDir(targetDoorDir);
+
         i_door.connectedDoor = gDoorAligned;
         gDoorAligned.connectedDoor = i_door;
     }
 
     private void GenerateConnectedRooms(Room i_room, int i_depth, ref int i_index)
     {
+        if (i_depth == 0)
+            return;
+
         foreach(Door door in i_room.doors)
         {
             if (door.connectedDoor != null)
+            {
+                Debug.Log(i_room.name + " " +door.direction);
                 continue;
+            }
+
+            int m = 0;
+            if (door.direction == 'W')
+                m = 1;  // break here
+                
             // try some times to generate a room not overlapped
             Room gRoom = null;
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 100; i++)
             {
                 gRoom = GenerateConnectableRoom(door.direction, ref i_index, i_room);
+
                 AlignRoomToDoor(door, gRoom);
-                if (!IsOverlapped(gRoom))
+                if (!IsOverlapped(gRoom)) //
                 {
+                    SpawnRoom(gRoom);
+                    ConnectDoors(door, gRoom);
                     RegisterTiles(gRoom);
-                    //SpawnRoom(gRoom);
                     break;
                 }
                 else
+                {
+                    //Debug.Log("Overlapped when testing " + i_room.name + " Door " + door.direction);
                     RemoveRoom(gRoom);
+                }
+                    
             }
+
+            if (gRoom == null)
+                Debug.Log("Did not find proper room");
 
             if (i_depth > 0 && gRoom != null)
                 GenerateConnectedRooms(gRoom, i_depth - 1, ref i_index);
@@ -317,7 +327,7 @@ public class DungeonGenerator : MonoBehaviour
 
     private bool IsOverlapped(Room i_room)  // detect if the room is overlapped w/ any other
     {
-        foreach(Tile tile in i_room.tiles)
+        foreach(TempTileData tile in i_room.TempTileDatas)
         {
             Vector2Int tilePos_w = tile.roomPosition + i_room.originBoardPosition;
             if (board.floorTiles.Contains(tilePos_w))

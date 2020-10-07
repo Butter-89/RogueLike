@@ -243,8 +243,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 0
-  victoryDepth: 2
-  maxTries: 10
+  victoryDepth: 4
+  maxTries: 100
   board: {fileID: 0}
   roomAsset:
   - {fileID: 4900000, guid: 6ea3c30ed2ebfe74ca79450236972384, type: 3}
