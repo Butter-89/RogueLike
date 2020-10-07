@@ -1,0 +1,7 @@
+-----------|
+W          |
+---------| |
+xxxxxxxxx| |
+xxxxxxxxx| |
+xxxxxxxxx| |
+xxxxxxxxx|S|

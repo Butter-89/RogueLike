@@ -71,6 +71,12 @@ public class DungeonGenerator : MonoBehaviour
             if (ch == '\r')
                 continue;
 
+            if (ch == 'x')
+            {
+                roomPos.x++;
+                continue;
+            }
+
             if (ch == '\n')
             {
                 roomPos.x = 0;
@@ -282,10 +288,6 @@ public class DungeonGenerator : MonoBehaviour
                 Debug.Log(i_room.name + " " +door.direction);
                 continue;
             }
-
-            int m = 0;
-            if (door.direction == 'W')
-                m = 1;  // break here
                 
             // try some times to generate a room not overlapped
             Room gRoom = null;
@@ -326,13 +328,6 @@ public class DungeonGenerator : MonoBehaviour
             //if(!board.floorTiles.Contains(tilePos_w))
             board.floorTiles.Add(tilePos_w);
         }
-    }
-
-    private bool AreRoomsOverlapped(Room i_room1, Room i_room2)
-    {
-
-
-        return false;
     }
 
     private bool IsOverlapped(Room i_room)  // detect if the room is overlapped w/ any other

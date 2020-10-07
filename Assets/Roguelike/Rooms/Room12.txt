@@ -1,0 +1,13 @@
+xxxx|-N-|
+xxxx|   |
+xxxx|   |
+xxxx|   |
+-----   -----
+|           |
+W           E
+|           |
+-----   -----
+xxxx|   |
+xxxx|   |
+xxxx|   |
+xxxx|-S-|

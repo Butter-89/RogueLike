@@ -243,13 +243,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 0
-  victoryDepth: 4
+  victoryDepth: 6
   maxTries: 100
   board: {fileID: 0}
   roomAsset:
   - {fileID: 4900000, guid: 6ea3c30ed2ebfe74ca79450236972384, type: 3}
   - {fileID: 4900000, guid: a2184fa516ba70841b0481d9cfd72c7d, type: 3}
   - {fileID: 4900000, guid: f01290a0017f59e47bb567dedaba1e2e, type: 3}
+  - {fileID: 4900000, guid: b04a3108d5d40684383e1c264b785d41, type: 3}
+  - {fileID: 4900000, guid: dc340b808ad57da44ba284abd207c6e2, type: 3}
+  - {fileID: 4900000, guid: f8dd627411f2817479a3db67e5ccd8b4, type: 3}
+  - {fileID: 4900000, guid: 162d320e07159b4448d0488e86cd3a5f, type: 3}
+  - {fileID: 4900000, guid: 254415d3686b1cd42bf562ca00b82a4b, type: 3}
+  - {fileID: 4900000, guid: 74ba28d1503a752458a28b33d5996ef5, type: 3}
+  - {fileID: 4900000, guid: 0d366194a8ce87a44b1785a3a636ffcd, type: 3}
+  - {fileID: 4900000, guid: d934eb5a5bdd7234a99e1f22b07bc9b1, type: 3}
+  - {fileID: 4900000, guid: ae94f169730d92f459d3aa6c2eee83f1, type: 3}
   tileDatas:
   - TileType: 32
     Prefab: {fileID: 4823688466373696112, guid: 004cc736a07a0ca46b4f0f79fd78adf6,
@@ -271,6 +280,9 @@ MonoBehaviour:
       type: 3}
   - TileType: 69
     Prefab: {fileID: 5482242109403087783, guid: 521756c77f435d04bb643aa0852c035d,
+      type: 3}
+  - TileType: 84
+    Prefab: {fileID: 6094313585425658686, guid: 3e7339d3aad1a7748aa7ef4117c3c741,
       type: 3}
 --- !u!4 &742466418
 Transform:
