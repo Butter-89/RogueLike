@@ -23,9 +23,12 @@ public class DungeonGenerator : MonoBehaviour
     }
 
     public List<TileData> tileDatas;
+    public Material victoryMat;
 
     void Start()
     {
+        if (victoryMat == null)
+            throw new System.Exception("Victory material is not set");
         Generate();
     }
 
@@ -104,7 +107,7 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private void SpawnRoom(Room i_room)
+    private void SpawnRoom(Room i_room, bool i_victoryRoom = false)
     {
         //i_room.tiles.Clear();
         //i_room.doors.Clear();
@@ -118,7 +121,10 @@ public class DungeonGenerator : MonoBehaviour
                 continue;
             }
 
-            SpawnTile(ch, i_room, roomPos);
+            if(i_victoryRoom)
+                SpawnTile(ch, i_room, roomPos, true);
+            else
+                SpawnTile(ch, i_room, roomPos);
 
             roomPos.x++;
         }
@@ -137,13 +143,17 @@ public class DungeonGenerator : MonoBehaviour
         return rotation;
     }
 
-    private Tile SpawnTile(char i_tileType, Room i_room, Vector2Int i_roomPosition)
+    private Tile SpawnTile(char i_tileType, Room i_room, Vector2Int i_roomPosition, bool i_victoryRoom = false)
     {
         TileData tileData = tileDatas.Find(td => td.TileType == i_tileType);
         if (tileData.Prefab == null)
             return null;
 
         Tile tile = Instantiate(tileData.Prefab, i_room.transform);
+        if(i_victoryRoom && i_tileType == ' ')
+        {
+            tile.GetComponentInChildren<MeshRenderer>().material = victoryMat;
+        }
         tile.transform.localPosition = new Vector3(i_roomPosition.x, 0, i_roomPosition.y);  // due to the right-hand coordinate system, need to swap x and z
         float yRotation = GetTileRotation(i_tileType);
         tile.transform.rotation = Quaternion.Euler(0, yRotation, 0);
@@ -285,7 +295,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (door.connectedDoor != null)
             {
-                Debug.Log(i_room.name + " " +door.direction);
+                //Debug.Log(i_room.name + " " +door.direction);
                 continue;
             }
                 
@@ -298,7 +308,13 @@ public class DungeonGenerator : MonoBehaviour
                 AlignRoomToDoor(door, gRoom);
                 if (!IsOverlapped(gRoom)) // !IsOverlapped(gRoom)
                 {
-                    SpawnRoom(gRoom);
+                    if (i_depth == 1)
+                    {
+                        SpawnRoom(gRoom, true);
+                    }
+                    else
+                        SpawnRoom(gRoom);
+
                     ConnectDoors(door, gRoom);
                     RegisterTiles(gRoom);
                     break;
