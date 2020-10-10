@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using UnityEditor;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class DungeonGenerator : MonoBehaviour
 {
     public int seed = 0;
@@ -24,6 +24,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public List<TileData> tileDatas;
     public Material victoryMat;
+    public Text seedNumber;
 
     void Start()
     {
@@ -50,6 +51,7 @@ public class DungeonGenerator : MonoBehaviour
 
         GenerateConnectedRooms(startRoom, victoryDepth, ref valueIndex);
         RemoveUnconnectedDoors();
+        seedNumber.text = seed.ToString();
     }
 
     private Room CreateRoomFromString(string i_roomStr, Vector2Int i_roomPosition)
@@ -369,6 +371,26 @@ public class DungeonGenerator : MonoBehaviour
 
     private void RemoveUnconnectedDoors()
     {
-
+        foreach(Room room in board.rooms)
+        {
+            List<Door> doorsToRemove = new List<Door>(); 
+            foreach(Door door in room.doors)
+            {
+                if(door.connectedDoor == null)
+                {
+                    SpawnTile('-', room, door.tile.roomPosition);
+                    doorsToRemove.Add(door);
+                    //room.tiles.Remove(door.tile);
+                    //room.doors.Remove(door);
+                    //Destroy(door.gameObject);
+                }
+            }
+            foreach(Door door in doorsToRemove)
+            {
+                room.tiles.Remove(door.tile);
+                room.doors.Remove(door);
+                Destroy(door.gameObject);
+            }
+        }
     }
 }
