@@ -15,6 +15,11 @@ public class Tile : MonoBehaviour
     public char tileType;
     public Room room;   // reference to the room it belongs to
     public Vector2Int roomPosition;
+    public bool walkable;
 
-    
+    [SerializeField]
+    private GameActor actorOnTile;
+    [SerializeField]
+    private Pickups pickupOnTile;
 }
+

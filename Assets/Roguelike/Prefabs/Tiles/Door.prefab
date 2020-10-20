@@ -330,6 +330,9 @@ MonoBehaviour:
   tileType: 0
   room: {fileID: 0}
   roomPosition: {x: 0, y: 0}
+  walkable: 1
+  actorOnTile: {fileID: 0}
+  pickupOnTile: {fileID: 0}
 --- !u!114 &1978208230969851884
 MonoBehaviour:
   m_ObjectHideFlags: 0
