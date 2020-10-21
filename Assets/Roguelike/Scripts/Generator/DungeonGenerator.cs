@@ -30,12 +30,15 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (victoryMat == null)
             throw new System.Exception("Victory material is not set");
+
         Generate();
+        GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameplayManager>().OnBoardGenerated();
     }
 
-    public void Generate()
+    public GameObject Generate()
     {
         GameObject tileObj = new GameObject("Tile Board");
+        tileObj.tag = "Board";
         board = tileObj.AddComponent<DungeonBoard>();
 
         int roomIndex = 0;
@@ -52,6 +55,8 @@ public class DungeonGenerator : MonoBehaviour
         GenerateConnectedRooms(startRoom, victoryDepth, ref valueIndex);
         RemoveUnconnectedDoors();
         seedNumber.text = seed.ToString();
+
+        return tileObj;
     }
 
     private Room CreateRoomFromString(string i_roomStr, Vector2Int i_roomPosition)

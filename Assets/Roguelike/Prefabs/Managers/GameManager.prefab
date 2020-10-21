@@ -56,3 +56,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56811b5a31572f24880e8491ccd7899f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPrefab: {fileID: 5151872370952000518, guid: 344544c87bbafc143be126fe2eddbdf4,
+    type: 3}
+  enemyPrefab: []
+  board: {fileID: 0}

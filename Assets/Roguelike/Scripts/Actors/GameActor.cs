@@ -21,9 +21,11 @@ public class GameActor : MonoBehaviour
     private float timer;
     private Vector3 currentPosition;
     private Vector3 targetPosition;
+    public Tile currentTile;
     private bool turnStart;
     private bool moveComplete;
     // Start is called before the first frame update
+
     void Start()
     {
         timer = 0f;
@@ -49,14 +51,25 @@ public class GameActor : MonoBehaviour
 
     private void MoveToTile()
     {
-        float t = timer / moveTime;
+        float t = timer / moveTime; // lerp too fast - is t wrong ?
         transform.position = Vector3.Lerp(currentPosition, targetPosition, t);
+        currentPosition = transform.position;
     }
 
     private void OnMoveComplete()
     {
         //currentPosition = targetPosition;
+        timer = 0f;
         moveComplete = true;
+        if(actorType == ActorType.Player)
+        {
+
+        }
+    }
+
+    public void SetCurrentPosition(Vector3 i_position)
+    {
+        currentPosition = i_position;
     }
 
     public void SetDestination(Vector3 i_destination)

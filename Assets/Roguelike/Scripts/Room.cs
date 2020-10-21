@@ -45,5 +45,14 @@ public class Room : MonoBehaviour
         tilePositions.Add(i_roomPos);
     }
 
-    
+    public Tile GetTileAt(Vector2Int i_position)
+    {
+        Tile tileFound = null;
+        foreach(Tile tile in tiles)
+        {
+            if (tile.roomPosition == i_position)
+                tileFound = tile;
+        }
+        return tileFound;
+    }
 }

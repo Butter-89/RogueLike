@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour
     private GameActor player;
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<GameActor>();
+        cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        player = GetComponent<GameActor>();
         if (player == null)
             throw new System.Exception("Player Game Object Not Found");
     }
@@ -27,9 +28,11 @@ public class PlayerController : MonoBehaviour
                 {
                     // get tile info
                     Tile tile = objectHit.GetComponent<Tile>();
-
+                    Debug.Log(tile.transform.position);
                     // move player onto it 
                     player.SetDestination(tile.transform.localPosition);
+                    player.currentTile = tile;
+                    tile.HighlightAdjacentTile();
                 }
             }
         }
