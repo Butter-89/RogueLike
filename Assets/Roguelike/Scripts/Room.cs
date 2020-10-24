@@ -19,6 +19,21 @@ public class Room : MonoBehaviour
     private List<TempDoorData> tempDoorDatas = new List<TempDoorData>();
     public List<TempDoorData> TempDoorDatas => tempDoorDatas;
 
+    private List<Tile> highlightedTiles = new List<Tile>();
+    public List<Tile> HighlightedTiles => highlightedTiles;
+
+    private TurnManager turnManager;
+    public TurnManager TurnManager => turnManager;
+
+    public int RoomDepth { get; set; }
+
+    private void Start()
+    {
+        turnManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<TurnManager>();
+        if (turnManager == null)
+            throw new System.Exception("Turn manager not found for room " + transform.name);
+    }
+
     public Door FindDoorWithDir(char i_dir)
     {
         foreach(Door door in doors)
@@ -45,6 +60,20 @@ public class Room : MonoBehaviour
         tilePositions.Add(i_roomPos);
     }
 
+    public Tile FindFreeTile()
+    {
+        for(int i = 0; i < 100; i++)
+        {
+            Tile randomTile = tiles[Random.Range(0, tiles.Count - 1)];
+            if(randomTile.IsReachable() && randomTile.PickupOnTile == null)
+            {
+                return randomTile;
+            }
+        }
+        Debug.LogError("Exceeds max tries to find free tile");
+        return null;
+    }
+
     public Tile GetTileAt(Vector2Int i_position)
     {
         Tile tileFound = null;
@@ -54,5 +83,14 @@ public class Room : MonoBehaviour
                 tileFound = tile;
         }
         return tileFound;
+    }
+
+    public void ResetHighlightedTiles()
+    {
+        for(int i = HighlightedTiles.Count - 1; i >= 0; i--)
+        {
+            HighlightedTiles[i].Unhighlight();
+        }
+
     }
 }

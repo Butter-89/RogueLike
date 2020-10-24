@@ -21,24 +21,27 @@ public class Tile : MonoBehaviour
     private GameActor actorOnTile;
     [SerializeField]
     private Pickups pickupOnTile;
-
+    public Pickups PickupOnTile => pickupOnTile;
+    private bool reachable;
     private Color prevColor;
 
     private void Start()
     {
         actorOnTile = null;
         pickupOnTile = null;
-        prevColor = GetComponentInChildren<Renderer>().material.color;
+        prevColor = Color.white; //GetComponentInChildren<Renderer>().material.color;
     }
 
-    public void SpawnActor(GameObject i_prefab)
+    public GameObject SpawnActor(GameObject i_prefab)
     {
-        GameObject spawnedObj = Instantiate(i_prefab, room.transform) as GameObject;
+        GameObject spawnedObj = Instantiate(i_prefab, room.transform);
         spawnedObj.transform.position = transform.position;
         actorOnTile = spawnedObj.GetComponent<GameActor>();
         actorOnTile.SetCurrentPosition(transform.position);
         actorOnTile.SetDestination(transform.position);
         actorOnTile.currentTile = this;
+
+        return spawnedObj;
     }
 
     public void HighlightAdjacentTile()
@@ -51,12 +54,20 @@ public class Tile : MonoBehaviour
 
     public void HighlightTile()
     {
+        reachable = true;
         GetComponentInChildren<Renderer>().material.color = Color.yellow;
+        if (!room.HighlightedTiles.Contains(this))
+            room.HighlightedTiles.Add(this);
     }
 
-    public void QuitHighlight()     // ??? need a proper name for this function
+    public void Unhighlight()
     {
+        reachable = false;
         GetComponentInChildren<Renderer>().material.color = prevColor;
+        if (room.HighlightedTiles.Contains(this))
+            room.HighlightedTiles.Remove(this);
     }
+
+    public bool IsReachable() => reachable && walkable;
 }
 

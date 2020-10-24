@@ -6,19 +6,25 @@ public class PlayerController : MonoBehaviour
 {
     public Camera cam;
 
-    private GameActor player;
+    private GameActor playerActor;
+    public bool InPlayerTurn { get; set; }
     void Start()
     {
         cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        player = GetComponent<GameActor>();
-        if (player == null)
+        playerActor = GetComponent<GameActor>();
+        if (playerActor == null)
             throw new System.Exception("Player Game Object Not Found");
+
+        InPlayerTurn = true;
     }
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (!InPlayerTurn)
+                return;
+
             RaycastHit hit;
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
@@ -28,11 +34,15 @@ public class PlayerController : MonoBehaviour
                 {
                     // get tile info
                     Tile tile = objectHit.GetComponent<Tile>();
-                    Debug.Log(tile.transform.position);
+                    //Debug.Log(tile.transform.position);
                     // move player onto it 
-                    player.SetDestination(tile.transform.localPosition);
-                    player.currentTile = tile;
-                    tile.HighlightAdjacentTile();
+                    if(tile.IsReachable())
+                    {
+                        playerActor.SetDestination(tile.transform.localPosition);
+                        playerActor.currentTile = tile;
+                    }
+                    
+                    //tile.HighlightAdjacentTile();
                 }
             }
         }

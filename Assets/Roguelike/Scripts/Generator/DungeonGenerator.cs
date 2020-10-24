@@ -44,6 +44,7 @@ public class DungeonGenerator : MonoBehaviour
         int roomIndex = 0;
         string roomStr = roomAsset[roomIndex].text;
         Room startRoom = CreateRoomFromString(roomStr, Vector2Int.zero);
+        startRoom.RoomDepth = 0;
         SpawnRoom(startRoom);
         RegisterTiles(startRoom);
 
@@ -315,6 +316,7 @@ public class DungeonGenerator : MonoBehaviour
                 AlignRoomToDoor(door, gRoom);
                 if (!IsOverlapped(gRoom)) // !IsOverlapped(gRoom)
                 {
+                    gRoom.RoomDepth = Mathf.Abs(i_depth - victoryDepth - 1);
                     if (i_depth == 1)
                     {
                         SpawnRoom(gRoom, true);
