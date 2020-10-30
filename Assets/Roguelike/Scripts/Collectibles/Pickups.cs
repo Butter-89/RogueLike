@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PickupType { Spear};
+
 public class Pickups : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public Tile currentTile;
+    public PickupType type;
+    public void OnPickUp()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        currentTile.room.TurnManager.DeregisterPickup(this);
+        Destroy(transform.gameObject);
     }
 }

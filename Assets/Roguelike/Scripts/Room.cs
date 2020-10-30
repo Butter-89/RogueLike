@@ -25,7 +25,7 @@ public class Room : MonoBehaviour
     private TurnManager turnManager;
     public TurnManager TurnManager => turnManager;
 
-    public int RoomDepth { get; set; }
+    public int RoomDepth;// { get; set; }
 
     private void Start()
     {
@@ -65,7 +65,7 @@ public class Room : MonoBehaviour
         for(int i = 0; i < 100; i++)
         {
             Tile randomTile = tiles[Random.Range(0, tiles.Count - 1)];
-            if(randomTile.IsReachable() && randomTile.PickupOnTile == null)
+            if(randomTile.walkable && randomTile.PickupOnTile == null && !randomTile.Occupied && randomTile.tileType == ' ')
             {
                 return randomTile;
             }
@@ -92,5 +92,16 @@ public class Room : MonoBehaviour
             HighlightedTiles[i].Unhighlight();
         }
 
+    }
+
+    public void ClearRoom()
+    {
+        TurnManager tm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<TurnManager>();
+        if (tm == null)
+            throw new System.Exception("TurnManager is not found for Room: " + transform.name);
+
+        tm.KillAll();
+        tm.ClearCollectibles();
+        tm.ClearUpgrades();
     }
 }

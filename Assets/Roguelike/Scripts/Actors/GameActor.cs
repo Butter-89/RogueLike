@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public enum ActorType { Player, Warrior, Archer  };
 
 public class GameActor : MonoBehaviour
@@ -14,10 +14,11 @@ public class GameActor : MonoBehaviour
     public int MaxMana;
     public int AttackRange;
 
-    private int HP { get; set; }
-    private int mana;
+    public int HP { get; set; }
+    public int mana;
 
     public float moveTime;
+    public int stunedTurns;
     private float timer;
     private Vector3 currentPosition;
     public Vector3 CurrentPosition => currentPosition;
@@ -25,16 +26,17 @@ public class GameActor : MonoBehaviour
     public Tile currentTile { get; set; }
     private bool turnStart;
     private bool actionComplete;
-    private bool hasSpear;
+    public bool hasSpear;
     // Start is called before the first frame update
 
-    void Start()
+    void Awake()
     {
         timer = 0f;
         hasSpear = false;
         actionComplete = true;
         HP = MaxHP;
         mana = MaxMana;
+        stunedTurns = 0;
     }
 
     void Update()
@@ -70,19 +72,44 @@ public class GameActor : MonoBehaviour
         //currentPosition = targetPosition;
         timer = 0f;
         actionComplete = true;
-        if(actorType == ActorType.Player)
+        TurnManager tm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<TurnManager>();
+        if (tm == null)
+            throw new System.Exception("TurnManager is not found for actor: " + transform.name);
+
+        if (currentTile.GetComponent<Lava>())
         {
+            ActorDeath();
+            return;
+        }
+            
+
+        if (actorType == ActorType.Player)
+        {
+            if(currentTile.GetComponent<VictoryTile>())
+            {
+                currentTile.GetComponent<VictoryTile>().CheckWinning();
+            }
             if(hasSpear)
             {
                 // Damage the enemy ahead if it's there
             }
 
-            TurnManager tm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<TurnManager>();
-            if (tm == null)
-                throw new System.Exception("TurnManager is not found for actor: " + transform.name);
-
+            Pickups pickup = currentTile.PickupOnTile;
+            Upgrades upgrade = currentTile.upgradeOnTile;
+            if (pickup != null)
+            {
+                CollectPickup(pickup);
+            }
+            else if(upgrade != null)
+            {
+                CollectUpgrade(upgrade);
+            }
             // Player turn ends
             tm.PlayerTurnEnd();
+        }
+        else if (actorType == ActorType.Warrior || actorType == ActorType.Archer)
+        {
+            //tm.EnemyTurnEnd();
         }
     }
 
@@ -100,31 +127,62 @@ public class GameActor : MonoBehaviour
 
     public void SetDestination(Vector2Int i_destination)
     {
-        targetPosition = new Vector3(i_destination.x, 0, i_destination.y);
+        targetPosition = new Vector3(currentTile.room.originBoardPosition.x + i_destination.x, 0, currentTile.room.originBoardPosition.y + i_destination.y);
         if (currentPosition != targetPosition)
             actionComplete = false;
     }
 
     // Attack
-    public void DealDamage(GameActor i_actor, int i_dmg)
+    public void DealDamage(GameActor i_target, int i_dmg)
     {
-        // TODO: play some VFX and SFX
-
-        // Deal actual damage
-        i_actor.HP = Mathf.Clamp(i_actor.HP - i_dmg, 0, 100);
-        if (i_actor.HP == 0)
-            ActorDeath();
+        i_target.HP = Mathf.Clamp(i_target.HP - i_dmg, 0, 100);
+        StartCoroutine(HitFlash(i_target));
     }
 
-    private void ActorDeath()
+    IEnumerator HitFlash(GameActor i_target)
+    {
+        Material prevMat = i_target.GetComponentInChildren<Renderer>().material;
+        Color prevColoer = prevMat.color;
+        i_target.GetComponentInChildren<Renderer>().material = null;
+        i_target.GetComponentInChildren<Renderer>().material.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        i_target.GetComponentInChildren<Renderer>().material = prevMat;
+        i_target.GetComponentInChildren<Renderer>().material.color = prevColoer;
+        if (i_target.HP == 0)
+            i_target.ActorDeath();
+    }
+
+    public void ActorDeath()
     {
         if(actorType != ActorType.Player)
         {
             // De-register from actor's manager
             currentTile.room.TurnManager.DeregistorActor(this);
+            currentTile.Occupied = false;
             // Play SFX & VFX and destroy game object
             Destroy(this.gameObject);
         }
+        else
+        {
+            CanvasGroup cg = GameObject.Find("WinFailUI").GetComponent<CanvasGroup>();
+            cg.gameObject.GetComponent<Text>().text = "GAME OVER!";
+            cg.alpha = 1;
+            Destroy(this.gameObject);
+        }
+    }
 
+    public void CollectPickup(Pickups i_pickup)
+    {
+        //Pickups pickup = currentTile.PickupOnTile;
+        if(i_pickup.type == PickupType.Spear)
+        {
+            hasSpear = true;
+        }
+        i_pickup.OnPickUp();
+    }
+
+    public void CollectUpgrade(Upgrades i_upgrade)
+    {
+        i_upgrade.ShowMenu();
     }
 }

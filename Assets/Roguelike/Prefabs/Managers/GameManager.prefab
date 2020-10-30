@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1305746624385622259}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44,6 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 378c687c471775649b6d328c80eba649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpButton: {fileID: 0}
+  spearButton: {fileID: 0}
+  pushButton: {fileID: 0}
+  isPlayerTurn: 0
+  isJumping: 0
+  throwingSpear: 0
+  isPushing: 0
 --- !u!114 &1305746624385622259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,5 +65,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 5151872370952000518, guid: 344544c87bbafc143be126fe2eddbdf4,
     type: 3}
-  enemyPrefab: []
+  enemyPrefab:
+  - {fileID: 5151872370952000518, guid: 1d3f83138d579644b9f7c0994dc961f4, type: 3}
+  - {fileID: 5151872370952000518, guid: 86c14347e9b279d44accbcd0ed0abc49, type: 3}
+  pickupPrefab: {fileID: 49081118940309490, guid: e2f50e0b84762464fabbc6389f27637c,
+    type: 3}
+  upgradePrefab: {fileID: 49081118940309490, guid: adf6e0af03b8bf44bb1a6997e3033440,
+    type: 3}
+  lavaMaterial: {fileID: 2100000, guid: 02b23c760115bc149865384936819a3b, type: 2}
+  generator: {fileID: 0}
   board: {fileID: 0}
